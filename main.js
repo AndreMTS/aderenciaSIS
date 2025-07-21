@@ -2,20 +2,22 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const si = require('systeminformation');
 const path = require('path');
 
-// Requisitos mínimos por produto para desktop
+// Requisitos mínimos por produto para desktop (Windows 10 build 19045+)
 const requisitosProdutosDesktop = {
-  start:    { ramGB: 2, cpuCores: 2, discoGB: 10, buildMin: 10240 },
-  light:    { ramGB: 4, cpuCores: 2, discoGB: 20, buildMin: 10240 },
-  sys:      { ramGB: 8, cpuCores: 4, discoGB: 40, buildMin: 10240 },
-  premium:  { ramGB: 64, cpuCores: 24, discoGB: 250, buildMin: 10240 }
+  start:    { ramGB: 8, cpuCores: 4, discoGB: 50, buildMin: 19045, osMinVersion: 'Windows 10 22H2' },
+  light:    { ramGB: 8, cpuCores: 4, discoGB: 50, buildMin: 19045, osMinVersion: 'Windows 10 22H2' },
+  sys:      { ramGB: 8, cpuCores: 8, discoGB: 50, buildMin: 19045, osMinVersion: 'Windows 10 22H2' },
+  premium:  { ramGB: 8, cpuCores: 8, discoGB: 50, buildMin: 19045, osMinVersion: 'Windows 10 22H2' }
 };
-// Requisitos mínimos por produto para servidor
+
+// Requisitos mínimos por produto para servidor (Windows Server 2016 = build 14393)
 const requisitosProdutosServidor = {
-  start:    { ramGB: 8, cpuCores: 4, discoGB: 50, buildMin: 10240 },
-  light:    { ramGB: 16, cpuCores: 8, discoGB: 100, buildMin: 10240 },
-  sys:      { ramGB: 32, cpuCores: 16, discoGB: 200, buildMin: 10240 },
-  premium:  { ramGB: 128, cpuCores: 32, discoGB: 500, buildMin: 10240 }
+  start:    { ramGB: 16, cpuCores: 8, discoGB: 100, buildMin: 14393, osMinVersion: 'Windows Server 2016' },
+  light:    { ramGB: 16, cpuCores: 8, discoGB: 100, buildMin: 14393, osMinVersion: 'Windows Server 2016' },
+  sys:      { ramGB: 16, cpuCores: 8, discoGB: 100, buildMin: 14393, osMinVersion: 'Windows Server 2016' },
+  premium:  { ramGB: 16, cpuCores: 8, discoGB: 100, buildMin: 14393, osMinVersion: 'Windows Server 2016' }
 };
+;
 
 function verificarAderencia(info, produto) {
   const req = requisitosProdutosDesktop[produto];
@@ -62,7 +64,7 @@ async function coletarInfo() {
   return {
     ramGB: Math.round(mem.total / 1024 / 1024 / 1024),
     cpuCores: cpu.cores,
-    discoGB: Math.round(disco[0].size / 1024 / 1024 / 1024),
+    discoGB: Math.round(disco[0].available / 1024 / 1024 / 1024),
     sistema: os.distro + ' ' + os.release,
     build: Number(os.build) || 0
   };
