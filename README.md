@@ -1,5 +1,7 @@
 # Verificador de Aderência Sisloc
 
+<img src="/demo/demo.jpg">
+
 Este projeto é um aplicativo desktop desenvolvido em Electron para verificar se o computador ou servidor atende aos requisitos mínimos recomendados para os produtos Sisloc (Start, Light, Sys, Premium).
 
 ## Funcionalidades
