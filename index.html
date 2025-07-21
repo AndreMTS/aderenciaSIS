@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Verificação de Aderência</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: gray; min-height: 100vh; padding: 10px; }
+    .container { max-width: 780px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); overflow: hidden; }
+    .header { background: #e67e22; color: white; padding: 20px; }
+    .header h1 { font-size: 1.8em; font-weight: 300; margin-bottom: 5px; }
+    .header p { font-size: 0.9em; opacity: 0.9; }
+    .content { padding: 20px; }
+    .wizard-steps { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+    .wizard-step { width: 32px; height: 32px; border-radius: 50%; background: #ecf0f1; color: #7f8c8d; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; transition: background 0.2s, color 0.2s; }
+    .wizard-step.active { background: #e67e22; color: #fff; }
+    .wizard-step.done { background: #27ae60; color: #fff; }
+    .wizard-labels { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 0.9em; color: #7f8c8d; }
+    .wizard-labels span { width: 90px; text-align: center; }
+    .wizard-labels .active { color: #e67e22; font-weight: bold; }
+    .wizard-labels .done { color: #27ae60; font-weight: bold; }
+    .wizard-panel { display: none; }
+    .wizard-panel.active { display: block; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { display: block; margin-bottom: 6px; color: #2c3e50; font-weight: 500; }
+    .form-input { width: 100%; padding: 8px 10px; border: 1.5px solid #bdc3c7; border-radius: 6px; font-size: 1em; transition: border 0.2s; }
+    .form-input:focus { border-color: #e67e22; outline: none; }
+    .produtos { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
+    .produto { background: white; border: 2px solid #ecf0f1; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; min-width: 120px; flex: 1; }
+    .produto:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-color: #e67e22; }
+    .produto.selected { border-color: #e67e22; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(230, 126, 34, 0.3); }
+    .produto img { width: 50px; height: 50px; margin-bottom: 10px; filter: grayscale(100%); transition: all 0.3s ease; object-fit: contain; }
+    .produto.selected img { filter: grayscale(0%); transform: scale(1.1); }
+    .produto h4 { font-size: 1em; margin-bottom: 3px; }
+    .produto p { font-size: 0.8em; opacity: 0.7; }
+    .tipo-selecao { background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; }
+    .tipo-selecao h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.1em; }
+    .radio-group { display: flex; justify-content: center; gap: 20px; }
+    .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 15px; border-radius: 8px; transition: all 0.3s ease; background: white; border: 2px solid #ecf0f1; font-size: 0.9em; }
+    .radio-option:hover { border-color: #e67e22; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(230, 126, 34, 0.2); }
+    .radio-option input[type="radio"] { width: 16px; height: 16px; accent-color: #e67e22; }
+    .radio-option input[type="radio"]:checked + span { color: #e67e22; font-weight: 600; }
+    .resultado { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 15px; }
+    .resultado h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.2em; }
+    .info-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ecf0f1; font-size: 0.9em; }
+    .info-item:last-child { border-bottom: none; }
+    .info-label { font-weight: 500; color: #34495e; min-width: 80px; }
+    .info-value { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; }
+    .info-text { font-weight: 600; text-align: right; max-width: 200px; }
+    .icone-check, .icone-x { width: 20px; height: 20px; flex-shrink: 0; }
+    .status-geral { margin-top: 15px; padding: 15px; border-radius: 8px; text-align: center; font-size: 1em; font-weight: 600; }
+    .status-aderente { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; }
+    .status-nao-aderente { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
+    .carregando { text-align: center; padding: 30px; color: #e67e22; font-size: 1em; }
+    .spinner { border: 2px solid #ecf0f1; border-top: 2px solid #e67e22; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .wizard-nav { display: flex; justify-content: space-between; margin-top: 25px; }
+    .wizard-nav button { background: #e67e22; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-size: 1em; cursor: pointer; transition: background 0.2s; }
+    .wizard-nav button:disabled { background: #bdc3c7; cursor: not-allowed; }
+    @media (max-width: 800px) { .container { margin: 5px; border-radius: 10px; } .content { padding: 15px; } .produtos { gap: 10px; flex-direction: column; } .radio-group { flex-direction: column; gap: 10px; } .info-item { flex-direction: column; align-items: flex-start; gap: 5px; } .info-value { justify-content: flex-start; width: 100%; } .info-text { text-align: left; max-width: none; } }
+    /* Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 30px; min-width: 300px; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 1001; }
+    .modal h3 { margin: 0 0 15px 0; color: #2c3e50; font-size: 1.3em; }
+    .modal p { margin: 0 0 20px 0; color: #7f8c8d; line-height: 1.5; }
+    .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; transition: all 0.2s; }
+    .modal-btn-primary { background: #e67e22; color: white; }
+    .modal-btn-primary:hover { background: #d35400; }
+    .modal-btn-secondary { background: #ecf0f1; color: #7f8c8d; }
+    .modal-btn-secondary:hover { background: #bdc3c7; }
+    .modal-btn-danger { background: #e74c3c; color: white; }
+    .modal-btn-danger:hover { background: #c0392b; }
+    /* Header com logo */
+    .header-content { display: flex; align-items: center; gap: 15px; }
+    .header-logo { width: 60px; height: 60px; object-fit: contain; }
+    .header-text { flex: 1; }
+    /* Link mais informações */
+    .link-mais-info { color: #e67e22; text-decoration: none; font-size: 0.9em; padding: 8px 15px; border: 1px solid #e67e22; border-radius: 6px; transition: all 0.3s ease; }
+    .link-mais-info:hover { background: #e67e22; color: white; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(230, 126, 34, 0.3); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <img src="./src/logo/logoSisloc.png" alt="Logo" class="header-logo">
+        <div class="header-text">
+          <h1>🔍 Verificação de Aderência</h1>
+          <p>Analise se seu sistema atende aos requisitos mínimos dos nossos produtos</p>
+        </div>
+      </div>
+    </div>
+    <div class="content" style="min-height: 80vh;">
+      <div class="wizard-steps">
+        <div class="wizard-step" id="step-ind-1">1</div>
+        <div class="wizard-step" id="step-ind-2">2</div>
+        <div class="wizard-step" id="step-ind-3">3</div>
+      </div>
+      <div class="wizard-labels">
+        <span id="label-1">Identificação</span>
+        <span id="label-2">Produto</span>
+        <span id="label-3">Resultado</span>
+      </div>
+      <!-- Etapa 1: Identificação -->
+      <div class="wizard-panel" id="panel-1">
+        <div class="form-group">
+          <label class="form-label" for="empresa">Nome da Empresa</label>
+          <input class="form-input" type="text" id="empresa" maxlength="60" placeholder="Digite o nome da empresa" autocomplete="organization" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cnpj">CNPJ</label>
+          <input class="form-input" type="text" id="cnpj" maxlength="18" placeholder="00.000.000/0000-00" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="hostname">Nome do PC</label>
+          <input class="form-input" type="text" id="hostname" maxlength="40" placeholder="Nome do computador" autocomplete="off" />
+        </div>
+      </div>
+      <!-- Etapa 2: Produto -->
+      <div class="wizard-panel" id="panel-2">
+        <div class="tipo-selecao">
+          <h3>📋 Tipo de Sistema</h3>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="tipo" value="desktop" checked>
+              <span>🖥️ Estação (Desktop)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="tipo" value="servidor">
+              <span>🖥️ Servidor</span>
+            </label>
+          </div>
+        </div>
+        <div class="produtos">
+          <div class="produto" id="start" tabindex="0">
+            <img src="./src/img/start.png" alt="Start" />
+            <h4>Start</h4>
+            <!-- <p>Versão básica</p> -->
+          </div>
+          <div class="produto" id="light" tabindex="0">
+            <img src="./src/img/light.png" alt="Light" />
+            <h4>Light</h4>
+            <!-- <p>Versão leve</p> -->
+          </div>
+          <div class="produto" id="sys" tabindex="0">
+            <img src="./src/img/sys.png" alt="Sys" />
+            <h4>Sys</h4>
+            <!-- <p>Versão sistema</p> -->
+          </div>
+          <div class="produto" id="premium" tabindex="0">
+            <img src="./src/img/premium.png" alt="Premium" />
+            <h4>Premium</h4>
+            <!-- <p>Versão premium</p> -->
+          </div>
+        </div>
+      </div>
+      <!-- Etapa 3: Resultado -->
+      <div class="wizard-panel" id="panel-3">
+        <div id="infos"></div>
+      </div>
+      <div class="wizard-nav">
+        <button id="btn-prev" disabled>Voltar</button>
+        <div style="display: flex; gap: 10px;">
+          <button id="btn-pdf" style="display: none;">Gerar PDF</button>
+          <button id="btn-next">Avançar</button>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 20px; padding: 15px; border-top: 1px solid #ecf0f1;">
+        <a href="https://atendimento.sisloc.com.br/hc/pt-br/articles/115000250331-Quais-os-requisitos-para-Servidor-Sisloc"
+           id="link-mais-info"
+           class="link-mais-info">
+          📄 Mais informações sobre requisitos
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal-overlay"></div>
+  <script>
+    // Variáveis globais no topo
+    const produtos = ['start', 'light', 'sys', 'premium'];
+    let produtoSelecionado = 'start';
+    let tipoSelecionado = 'desktop';
+    let step = 1;
+    const maxStep = 3;
+    const divInfos = document.getElementById('infos');
+    const produtoDivs = produtos.map(p => document.getElementById(p));
+    // Modal functions
+    function showModal(title, message, buttons = []) {
+      const overlay = document.getElementById('modal-overlay');
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <h3>${title}</h3>
+        <p>${message}</p>
+        <div class="modal-buttons">
+          ${buttons.map(btn => `<button class="modal-btn ${btn.class || 'modal-btn-primary'}" onclick="${btn.onclick}">${btn.text}</button>`).join('')}
+        </div>
+      `;
+      overlay.appendChild(modal);
+      overlay.style.display = 'block';
+    }
+    function hideModal() {
+      const overlay = document.getElementById('modal-overlay');
+      overlay.innerHTML = '';
+      overlay.style.display = 'none';
+    }
+    function resetWizard() {
+      // Reset para primeira tela
+      step = 1;
+      produtoSelecionado = 'start';
+      tipoSelecionado = 'desktop';
+      
+      // Limpar campos
+      document.getElementById('empresa').value = '';
+      document.getElementById('cnpj').value = '';
+      document.getElementById('hostname').value = window.sistema.getHostname();
+      
+      // Resetar seleções
+      document.querySelector('input[name="tipo"][value="desktop"]').checked = true;
+      atualizarSelecao('start');
+      
+      // Limpar resultado
+      divInfos.innerHTML = '';
+      
+      // Atualizar wizard
+      updateWizard();
+    }
+    // Wizard
+    function updateWizard() {
+      for(let i=1;i<=maxStep;i++) {
+        document.getElementById('panel-'+i).classList.remove('active');
+        document.getElementById('step-ind-'+i).classList.remove('active','done');
+        document.getElementById('label-'+i).classList.remove('active','done');
+      }
+      document.getElementById('panel-'+step).classList.add('active');
+      for(let i=1;i<step;i++) {
+        document.getElementById('step-ind-'+i).classList.add('done');
+        document.getElementById('label-'+i).classList.add('done');
+      }
+      document.getElementById('step-ind-'+step).classList.add('active');
+      document.getElementById('label-'+step).classList.add('active');
+      document.getElementById('btn-prev').disabled = step === 1;
+      document.getElementById('btn-next').innerText = step === maxStep ? 'Reiniciar' : 'Avançar';
+      // Mostrar/esconder botão PDF
+      document.getElementById('btn-pdf').style.display = (step === 3) ? 'inline-block' : 'none';
+    }
+    document.getElementById('btn-prev').onclick = function() {
+      if(step > 1) { step--; updateWizard(); }
+    }
+    document.getElementById('btn-next').onclick = function() {
+      if(step === 1) {
+        // Validação simples
+        const empresa = document.getElementById('empresa').value.trim();
+        const cnpj = document.getElementById('cnpj').value.trim();
+        if(!empresa) { 
+          showModal('Campo Obrigatório', 'Preencha o nome da empresa.', [
+            { text: 'OK', class: 'modal-btn-primary', onclick: 'hideModal()' }
+          ]);
+          return; 
+        }
+        // Validação CNPJ mais flexível
+        if(cnpj && !/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(cnpj)) { 
+          showModal('CNPJ Incorreto', 'O CNPJ está em formato incorreto. Deseja continuar mesmo assim?', [
+            { text: 'Continuar', class: 'modal-btn-primary', onclick: 'hideModal(); step++; updateWizard(); if(step===3) mostrarInfo(produtoSelecionado);' },
+            { text: 'Corrigir', class: 'modal-btn-secondary', onclick: 'hideModal()' }
+          ]);
+          return;
+        }
+      }
+      if(step < maxStep) { 
+        step++; 
+        updateWizard(); 
+        if(step===3) mostrarInfo(produtoSelecionado); 
+      } else {
+        // Botão Concluir - reiniciar wizard
+        showModal('Reiniciar', 'Deseja fazer uma nova verificação?', [
+          { text: 'Sim', class: 'modal-btn-primary', onclick: 'hideModal(); resetWizard();' },
+          { text: 'Não', class: 'modal-btn-secondary', onclick: 'hideModal()' }
+        ]);
+      }
+    }
+    updateWizard();
+    // CNPJ mask
+    document.getElementById('cnpj').addEventListener('input', function(e) {
+      let v = e.target.value.replace(/\D/g,"");
+      v = v.replace(/(\d{2})(\d)/,"$1.$2");
+      v = v.replace(/(\d{3})(\d)/,"$1.$2");
+      v = v.replace(/(\d{3})(\d)/,"$1/$2");
+      v = v.replace(/(\d{4})(\d{1,2})$/,"$1-$2");
+      e.target.value = v;
+    });
+    // Preencher hostname de forma segura
+    window.addEventListener('DOMContentLoaded', () => {
+      if(window.sistema && typeof window.sistema.getHostname === 'function') {
+        document.getElementById('hostname').value = window.sistema.getHostname();
+      }
+    });
+    // Produto e tipo
+    function atualizarSelecao(produto) {
+      produtoDivs.forEach(div => div.classList.remove('selected'));
+      document.getElementById(produto).classList.add('selected');
+    }
+    function mostrarInfo(produto) {
+      divInfos.innerHTML = `
+        <div class="carregando">
+          <div class="spinner"></div>
+          Verificando aderência do sistema...
+        </div>
+      `;
+      window.sistema.obterInfos(produto, tipoSelecionado).then(info => {
+        const ad = info.aderencia;
+        const iconeCheck = '<svg class="icone-check" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 10 18 4 12"/></svg>';
+        const iconeX = '<svg class="icone-x" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        divInfos.innerHTML = `
+          <div class="resultado">
+            <h3>📊 Resultado da Verificação</h3>
+            <div class="info-item">
+              <span class="info-label">💾 RAM</span>
+              <div class="info-value">
+                <span class="info-text">${info.ramGB} GB / mínimo: ${ad.minimos.ramGB} GB</span>
+                ${ad.ram ? iconeCheck : iconeX}
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="info-label">⚡ CPU</span>
+              <div class="info-value">
+                <span class="info-text">${info.cpuCores} núcleos / mínimo: ${ad.minimos.cpuCores} núcleos</span>
+                ${ad.cpu ? iconeCheck : iconeX}
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="info-label">💿 Disco</span>
+              <div class="info-value">
+                <span class="info-text">${info.discoGB} GB livres / mínimo: ${ad.minimos.discoGB} GB</span>
+                ${ad.disco ? iconeCheck : iconeX}
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="info-label">🖥️ Sistema</span>
+              <div class="info-value">
+                <span class="info-text">${info.sistema} (build ${info.build}) / mínimo: build ${ad.minimos.buildMin}</span>
+                ${ad.sistema ? iconeCheck : iconeX}
+              </div>
+            </div>
+            <div class="status-geral ${ad.geral ? 'status-aderente' : 'status-nao-aderente'}">
+              ${ad.geral ? '✅ Aderente aos requisitos mínimos!' : '❌ Não aderente aos requisitos mínimos.'}
+            </div>
+          </div>
+        `;
+        window.ultimaInfoPDF = {
+          produto,
+          tipo: tipoSelecionado,
+          info,
+          empresa: document.getElementById('empresa').value,
+          cnpj: document.getElementById('cnpj').value,
+          hostname: document.getElementById('hostname').value
+        };
+      });
+    }
+    produtoDivs.forEach(div => {
+      div.addEventListener('click', () => {
+        produtoSelecionado = div.id;
+        atualizarSelecao(produtoSelecionado);
+      });
+      div.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          produtoSelecionado = div.id;
+          atualizarSelecao(produtoSelecionado);
+        }
+      });
+    });
+    document.querySelectorAll('input[name="tipo"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        tipoSelecionado = e.target.value;
+      });
+    });
+    atualizarSelecao(produtoSelecionado);
+    // PDF
+    document.getElementById('btn-pdf').onclick = function() {
+      if(window.ultimaInfoPDF) {
+        window.sistema.gerarPDF(window.ultimaInfoPDF);
+      }
+    }
+    // Fechar modal ao clicar fora
+    document.getElementById('modal-overlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideModal();
+      }
+    });
+    document.getElementById('link-mais-info').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.sistema.abrirLinkExterno(this.href);
+    });
+  </script>
+</body>
+</html> 

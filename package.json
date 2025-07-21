@@ -1,0 +1,16 @@
+{
+  "name": "versaonova",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "electron": "^37.2.3",
+    "systeminformation": "^5.27.7"
+  }
+}
