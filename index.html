@@ -3,82 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Verificação de Aderência</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: gray; min-height: 100vh; padding: 10px; }
-    .container { max-width: 780px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 15px 30px rgba(0,0,0,0.1); overflow: hidden; }
-    .header { background: #e67e22; color: white; padding: 20px; }
-    .header h1 { font-size: 1.8em; font-weight: 300; margin-bottom: 5px; }
-    .header p { font-size: 0.9em; opacity: 0.9; }
-    .content { padding: 20px; }
-    .wizard-steps { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
-    .wizard-step { width: 32px; height: 32px; border-radius: 50%; background: #ecf0f1; color: #7f8c8d; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.1em; transition: background 0.2s, color 0.2s; }
-    .wizard-step.active { background: #e67e22; color: #fff; }
-    .wizard-step.done { background: #27ae60; color: #fff; }
-    .wizard-labels { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 0.9em; color: #7f8c8d; }
-    .wizard-labels span { width: 90px; text-align: center; }
-    .wizard-labels .active { color: #e67e22; font-weight: bold; }
-    .wizard-labels .done { color: #27ae60; font-weight: bold; }
-    .wizard-panel { display: none; }
-    .wizard-panel.active { display: block; }
-    .form-group { margin-bottom: 18px; }
-    .form-label { display: block; margin-bottom: 6px; color: #2c3e50; font-weight: 500; }
-    .form-input { width: 100%; padding: 8px 10px; border: 1.5px solid #bdc3c7; border-radius: 6px; font-size: 1em; transition: border 0.2s; }
-    .form-input:focus { border-color: #e67e22; outline: none; }
-    .produtos { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
-    .produto { background: white; border: 2px solid #ecf0f1; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; min-width: 120px; flex: 1; }
-    .produto:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-color: #e67e22; }
-    .produto.selected { border-color: #e67e22; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(230, 126, 34, 0.3); }
-    .produto img { width: 50px; height: 50px; margin-bottom: 10px; filter: grayscale(100%); transition: all 0.3s ease; object-fit: contain; }
-    .produto.selected img { filter: grayscale(0%); transform: scale(1.1); }
-    .produto h4 { font-size: 1em; margin-bottom: 3px; }
-    .produto p { font-size: 0.8em; opacity: 0.7; }
-    .tipo-selecao { background: #f8f9fa; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; }
-    .tipo-selecao h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.1em; }
-    .radio-group { display: flex; justify-content: center; gap: 20px; }
-    .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 15px; border-radius: 8px; transition: all 0.3s ease; background: white; border: 2px solid #ecf0f1; font-size: 0.9em; }
-    .radio-option:hover { border-color: #e67e22; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(230, 126, 34, 0.2); }
-    .radio-option input[type="radio"] { width: 16px; height: 16px; accent-color: #e67e22; }
-    .radio-option input[type="radio"]:checked + span { color: #e67e22; font-weight: 600; }
-    .resultado { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-top: 15px; }
-    .resultado h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.2em; }
-    .info-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #ecf0f1; font-size: 0.9em; }
-    .info-item:last-child { border-bottom: none; }
-    .info-label { font-weight: 500; color: #34495e; min-width: 80px; }
-    .info-value { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; }
-    .info-text { font-weight: 600; text-align: right; max-width: 200px; }
-    .icone-check, .icone-x { width: 20px; height: 20px; flex-shrink: 0; }
-    .status-geral { margin-top: 15px; padding: 15px; border-radius: 8px; text-align: center; font-size: 1em; font-weight: 600; }
-    .status-aderente { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); color: white; }
-    .status-nao-aderente { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
-    .carregando { text-align: center; padding: 30px; color: #e67e22; font-size: 1em; }
-    .spinner { border: 2px solid #ecf0f1; border-top: 2px solid #e67e22; border-radius: 50%; width: 25px; height: 25px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .wizard-nav { display: flex; justify-content: space-between; margin-top: 25px; }
-    .wizard-nav button { background: #e67e22; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-size: 1em; cursor: pointer; transition: background 0.2s; }
-    .wizard-nav button:disabled { background: #bdc3c7; cursor: not-allowed; }
-    @media (max-width: 800px) { .container { margin: 5px; border-radius: 10px; } .content { padding: 15px; } .produtos { gap: 10px; flex-direction: column; } .radio-group { flex-direction: column; gap: 10px; } .info-item { flex-direction: column; align-items: flex-start; gap: 5px; } .info-value { justify-content: flex-start; width: 100%; } .info-text { text-align: left; max-width: none; } }
-    /* Modal */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 30px; min-width: 300px; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 1001; }
-    .modal h3 { margin: 0 0 15px 0; color: #2c3e50; font-size: 1.3em; }
-    .modal p { margin: 0 0 20px 0; color: #7f8c8d; line-height: 1.5; }
-    .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; }
-    .modal-btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; transition: all 0.2s; }
-    .modal-btn-primary { background: #e67e22; color: white; }
-    .modal-btn-primary:hover { background: #d35400; }
-    .modal-btn-secondary { background: #ecf0f1; color: #7f8c8d; }
-    .modal-btn-secondary:hover { background: #bdc3c7; }
-    .modal-btn-danger { background: #e74c3c; color: white; }
-    .modal-btn-danger:hover { background: #c0392b; }
-    /* Header com logo */
-    .header-content { display: flex; align-items: center; gap: 15px; }
-    .header-logo { width: 60px; height: 60px; object-fit: contain; }
-    .header-text { flex: 1; }
-    /* Link mais informações */
-    .link-mais-info { color: #e67e22; text-decoration: none; font-size: 0.9em; padding: 8px 15px; border: 1px solid #e67e22; border-radius: 6px; transition: all 0.3s ease; }
-    .link-mais-info:hover { background: #e67e22; color: white; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(230, 126, 34, 0.3); }
-  </style>
+<link rel="stylesheet" href="./src/css/style.css">
 </head>
 <body>
   <div class="container">
@@ -159,19 +84,17 @@
       <div class="wizard-panel" id="panel-3">
         <div id="infos"></div>
       </div>
-      <div class="wizard-nav">
+      <div class="wizard-nav" id="wizard-nav">
         <button id="btn-prev" disabled>Voltar</button>
         <div style="display: flex; gap: 10px;">
           <button id="btn-pdf" style="display: none;">Gerar PDF</button>
           <button id="btn-next">Avançar</button>
         </div>
       </div>
-      <div style="text-align: center; margin-top: 20px; padding: 15px; border-top: 1px solid #ecf0f1;">
-        <a href="https://atendimento.sisloc.com.br/hc/pt-br/articles/115000250331-Quais-os-requisitos-para-Servidor-Sisloc"
-           id="link-mais-info"
-           class="link-mais-info">
-          📄 Mais informações sobre requisitos
-        </a>
+      <div style="text-align: center; margin-top: 20px; padding: 15px; border-top: 1px solid #ecf0f1;" id="footer-info">
+        <div style="position: relative; display: inline-block;">
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -185,6 +108,79 @@
     const maxStep = 3;
     const divInfos = document.getElementById('infos');
     const produtoDivs = produtos.map(p => document.getElementById(p));
+    let discosVisiveis = false; // Para controlar a exibição dos discos
+
+    // Função para mostrar/ocultar elementos durante carregamento
+    function toggleLoadingState(isLoading) {
+      const wizardNav = document.getElementById('wizard-nav');
+      const footerInfo = document.getElementById('footer-info');
+      
+      if (isLoading) {
+        wizardNav.style.display = 'none';
+        footerInfo.style.display = 'none';
+      } else {
+        wizardNav.style.display = 'flex';
+        footerInfo.style.display = 'block';
+      }
+    }
+
+    // Função para gerar HTML da tabela de discos otimizada
+    function gerarTabelaDiscosOtimizada(discosDetalhados, discoMaisLivre) {
+      if (!discosDetalhados || discosDetalhados.length === 0) {
+        return '<p style="text-align: center; color: #7f8c8d; font-style: italic;">Nenhum disco detectado</p>';
+      }
+
+      // Filtrar apenas os discos que não são o principal
+      const outrosDiscos = discosDetalhados.filter(disco => disco.mount !== discoMaisLivre);
+      
+      if (outrosDiscos.length === 0) {
+        return '<p style="text-align: center; color: #7f8c8d; font-style: italic;">Apenas um disco detectado</p>';
+      }
+
+      const linhasDiscos = outrosDiscos.map(disco => {
+        return `
+          <tr>
+            <td>💾 ${disco.mount}</td>
+            <td>${disco.totalGB} GB</td>
+            <td>${disco.livreGB} GB</td>
+            <td>${disco.tipo || 'N/A'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: #ecf0f1;">
+              <th style="padding: 8px; text-align: left; border: 1px solid #bdc3c7; font-weight: 600;">Unidade</th>
+              <th style="padding: 8px; text-align: left; border: 1px solid #bdc3c7; font-weight: 600;">Total</th>
+              <th style="padding: 8px; text-align: left; border: 1px solid #bdc3c7; font-weight: 600;">Livre</th>
+              <th style="padding: 8px; text-align: left; border: 1px solid #bdc3c7; font-weight: 600;">Tipo</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${linhasDiscos}
+          </tbody>
+        </table>
+        <p style="margin-top: 8px; font-size: 11px; color: #7f8c8d; text-align: center;">
+          ⚡ O disco principal (${discoMaisLivre}) já está exibido acima no resultado
+        </p>
+      `;
+    }
+
+    // Função para alternar exibição dos discos
+    function toggleDiscos() {
+      const discosSection = document.getElementById('discos-section');
+      
+      if (discosVisiveis) {
+        discosSection.style.display = 'none';
+        discosVisiveis = false;
+      } else {
+        discosSection.style.display = 'block';
+        discosVisiveis = true;
+      }
+    }
+
     // Modal functions
     function showModal(title, message, buttons = []) {
       const overlay = document.getElementById('modal-overlay');
@@ -210,11 +206,12 @@
       step = 1;
       produtoSelecionado = 'start';
       tipoSelecionado = 'desktop';
+      discosVisiveis = false;
       
       // Limpar campos
       document.getElementById('empresa').value = '';
       document.getElementById('cnpj').value = '';
-      document.getElementById('hostname').value = window.sistema.getHostname();
+      document.getElementById('hostname').value = window.sistema ? window.sistema.getHostname() : '';
       
       // Resetar seleções
       document.querySelector('input[name="tipo"][value="desktop"]').checked = true;
@@ -222,6 +219,9 @@
       
       // Limpar resultado
       divInfos.innerHTML = '';
+      
+      // Mostrar elementos novamente
+      toggleLoadingState(false);
       
       // Atualizar wizard
       updateWizard();
@@ -302,19 +302,75 @@
       document.getElementById(produto).classList.add('selected');
     }
     function mostrarInfo(produto) {
+      // Ocultar botões e links durante carregamento
+      toggleLoadingState(true);
+      discosVisiveis = false;
+      
       divInfos.innerHTML = `
         <div class="carregando">
           <div class="spinner"></div>
           Verificando aderência do sistema...
         </div>
       `;
+      
       window.sistema.obterInfos(produto, tipoSelecionado).then(info => {
         const ad = info.aderencia;
         const iconeCheck = '<svg class="icone-check" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 10 18 4 12"/></svg>';
         const iconeX = '<svg class="icone-x" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        
+        const quantidadeDiscos = info.discosDetalhados ? info.discosDetalhados.length : 0;
+        
         divInfos.innerHTML = `
           <div class="resultado">
-            <h3>📊 Resultado da Verificação</h3>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h3 style="margin: 0;">📊 Resultado: </h3>
+              <div style="position: relative; display: inline-block;">
+                <span style="
+                  display: inline-block;
+                  width: 20px;
+                  height: 20px;
+                  background: #3498db;
+                  color: white;
+                  border-radius: 50%;
+                  text-align: center;
+                  line-height: 20px;
+                  font-size: 12px;
+                  font-weight: bold;
+                  cursor: pointer;
+                  transition: background 0.3s ease;
+                " 
+                onmouseover="this.style.background='#2980b9'; document.getElementById('tooltip-requisitos').style.display='block'" 
+                onmouseout="this.style.background='#3498db'; document.getElementById('tooltip-requisitos').style.display='none'"
+                onclick="if(window.sistema && window.sistema.abrirLinkExterno) window.sistema.abrirLinkExterno('https://atendimento.sisloc.com.br/hc/pt-br/articles/115000250331-Quais-os-requisitos-para-Servidor-Sisloc')">
+                  ?
+                </span>
+                <div id="tooltip-requisitos" style="
+                  position: absolute;
+                  bottom: 25px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  background: #2c3e50;
+                  color: white;
+                  padding: 8px 12px;
+                  border-radius: 6px;
+                  font-size: 12px;
+                  white-space: nowrap;
+                  display: none;
+                  z-index: 1000;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                ">
+                  📄 Mais informações sobre requisitos
+                  <div style="
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    border: 5px solid transparent;
+                    border-top-color: #2c3e50;
+                  "></div>
+                </div>
+              </div>
+            </div>
             <div class="info-item">
               <span class="info-label">💾 RAM</span>
               <div class="info-value">
@@ -332,7 +388,18 @@
             <div class="info-item">
               <span class="info-label">💿 Disco</span>
               <div class="info-value">
-                <span class="info-text">${info.discoGB} GB livres / mínimo: ${ad.minimos.discoGB} GB</span>
+                <span class="info-text">${info.discoGB} GB livres (${info.discoMount}) / mínimo: ${ad.minimos.discoGB} GB</span>
+                ${quantidadeDiscos > 1 ? `<button onclick="toggleDiscos()" style="
+                  background: none; 
+                  border: 1px solid #3498db; 
+                  color: #3498db; 
+                  padding: 2px 8px; 
+                  border-radius: 4px; 
+                  cursor: pointer; 
+                  font-size: 11px;
+                  margin-left: 8px;
+                  transition: all 0.2s ease;
+                " onmouseover="this.style.background='#3498db'; this.style.color='white'" onmouseout="this.style.background='none'; this.style.color='#3498db'" title="Ver todos os discos detectados">+${quantidadeDiscos - 1}</button>` : ''}
                 ${ad.disco ? iconeCheck : iconeX}
               </div>
             </div>
@@ -347,7 +414,20 @@
               ${ad.geral ? '✅ Aderente aos requisitos mínimos!' : '❌ Não aderente aos requisitos mínimos.'}
             </div>
           </div>
+
+          ${quantidadeDiscos > 1 ? `          
+          <div class="discos-section" id="discos-section" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #3498db;">
+            <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 16px;">
+              💿 Outros Discos Detectados
+            </h3>
+            ${gerarTabelaDiscosOtimizada(info.discosDetalhados, info.discoMount)}
+          </div>
+          ` : ''}
         `;
+        
+        // Mostrar botões e links novamente após carregar
+        toggleLoadingState(false);
+        
         window.ultimaInfoPDF = {
           produto,
           tipo: tipoSelecionado,
@@ -356,6 +436,16 @@
           cnpj: document.getElementById('cnpj').value,
           hostname: document.getElementById('hostname').value
         };
+      }).catch(error => {
+        // Em caso de erro, também mostrar os botões novamente
+        toggleLoadingState(false);
+        divInfos.innerHTML = `
+          <div class="resultado">
+            <div class="status-geral status-nao-aderente">
+              ❌ Erro ao verificar sistema: ${error.message || 'Erro desconhecido'}
+            </div>
+          </div>
+        `;
       });
     }
     produtoDivs.forEach(div => {
@@ -388,10 +478,6 @@
         hideModal();
       }
     });
-    document.getElementById('link-mais-info').addEventListener('click', function(e) {
-      e.preventDefault();
-      window.sistema.abrirLinkExterno(this.href);
-    });
   </script>
 </body>
-</html> 
+</html>

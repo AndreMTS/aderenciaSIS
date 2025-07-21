@@ -59,14 +59,28 @@ async function coletarInfo() {
   const mem = await si.mem();
   const cpu = await si.cpu();
   const os = await si.osInfo();
-  const disco = await si.fsSize();
-  // build: os.build retorna string, converter para número
+  const discos = await si.fsSize();
+
+  // Lista de todos os discos e seus espaços livres
+  const discosDetalhados = discos.map(d => ({
+    mount: d.mount,
+    tipo: d.type,
+    totalGB: Math.round(d.size / 1024 / 1024 / 1024),
+    livreGB: Math.round(d.available / 1024 / 1024 / 1024)
+  }));
+
+  // Seleciona o disco com mais espaço livre
+  const discoMaisLivre = discosDetalhados.reduce((maior, atual) =>
+    atual.livreGB > maior.livreGB ? atual : maior, { livreGB: 0, mount: 'N/A' });
+
   return {
     ramGB: Math.round(mem.total / 1024 / 1024 / 1024),
     cpuCores: cpu.cores,
-    discoGB: Math.round(disco[0].available / 1024 / 1024 / 1024),
+    discoGB: discoMaisLivre.livreGB,
+    discoMount: discoMaisLivre.mount,
     sistema: os.distro + ' ' + os.release,
-    build: Number(os.build) || 0
+    build: Number(os.build) || 0,
+    discosDetalhados // 👈 incluímos aqui
   };
 }
 
@@ -146,9 +160,22 @@ ipcMain.handle('gerar-pdf', async (event, dados) => {
       <tr><th>Quesito</th><th>Seu PC</th><th>Mínimo</th><th>Status</th></tr>
       <tr><td>RAM</td><td>${info.ramGB} GB</td><td>${ad.minimos.ramGB} GB</td><td class='status'>${ad.ram ? iconeCheck : iconeX}</td></tr>
       <tr><td>CPU</td><td>${info.cpuCores} núcleos</td><td>${ad.minimos.cpuCores} núcleos</td><td class='status'>${ad.cpu ? iconeCheck : iconeX}</td></tr>
-      <tr><td>Disco</td><td>${info.discoGB} GB livres</td><td>${ad.minimos.discoGB} GB</td><td class='status'>${ad.disco ? iconeCheck : iconeX}</td></tr>
+      <tr><td>Disco</td><td>${info.discoGB} GB livres (${info.discoMount})</td><td>${ad.minimos.discoGB} GB</td><td class='status'>${ad.disco ? iconeCheck : iconeX}</td></tr>
       <tr><td>Sistema</td><td>${info.sistema} (build ${info.build})</td><td>build ${ad.minimos.buildMin}</td><td class='status'>${ad.sistema ? iconeCheck : iconeX}</td></tr>
     </table>
+    <table class='pdf-table' style='margin-top: 30px'>
+  <tr><th colspan="3">Discos Detectados</th></tr>
+  <tr><th>Unidade</th><th>Tamanho Total</th><th>Espaço Livre</th></tr>
+  ${
+    info.discosDetalhados.map(disco => `
+      <tr>
+        <td>${disco.mount}</td>
+        <td>${disco.totalGB} GB</td>
+        <td>${disco.livreGB} GB</td>
+      </tr>
+    `).join('')
+  }
+</table>
     <div class='status-geral' style='margin-top:22px; font-size:1.1em; padding:12px; border-radius:8px; background:${ad.geral ? '#28a74522' : '#dc354522'}; color:${ad.geral ? '#28a745' : '#dc3545'};'>
       ${ad.geral ? 'Aderente aos requisitos mínimos!' : 'Não aderente aos requisitos mínimos.'}
     </div>
