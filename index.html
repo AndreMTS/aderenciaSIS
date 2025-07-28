@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Verificação de Aderência</title>
+  <title>Verificador de Aderência Sisloc</title>
 <link rel="stylesheet" href="./src/css/style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
       <div class="header-content">
         <img src="./src/logo/logoSisloc.png" alt="Logo" class="header-logo">
         <div class="header-text">
-          <h1>🔍 Verificação de Aderência</h1>
+          <h1>🔍 Verificador de Aderência Sisloc</h1>
           <p>Analise se seu sistema atende aos requisitos mínimos dos nossos produtos</p>
         </div>
       </div>
@@ -45,11 +45,11 @@
       <!-- Etapa 2: Produto -->
       <div class="wizard-panel" id="panel-2">
         <div class="tipo-selecao">
-          <h3>📋 Tipo de Sistema</h3>
+          <h3>📋 Tipo de Máquina </h3>
           <div class="radio-group">
             <label class="radio-option">
               <input type="radio" name="tipo" value="desktop" checked>
-              <span>🖥️ Estação (Desktop)</span>
+              <span>💻 Estação (Desktop)</span>
             </label>
             <label class="radio-option">
               <input type="radio" name="tipo" value="servidor">
@@ -91,10 +91,14 @@
           <button id="btn-next">Avançar</button>
         </div>
       </div>
-      <div style="text-align: center; margin-top: 20px; padding: 15px; border-top: 1px solid #ecf0f1;" id="footer-info">
+      <div id="footer-info">
         <div style="position: relative; display: inline-block;">
           </div>
         </div>
+      </div>
+      <div class="footer"> <!-- Rodapé que quero colocar fixo -->
+        <!-- <p>© 2024 MTS Sistemas. Todos os direitos reservados.</p> -->
+        <p style="font-size: small;color: gray;text-align-last: end;padding: 0px 10px 10px 10px;">Desenvolvido por <a style="color: gray;" href="https://github.com/AndreMTS" target="_blank">André Matos</a></p>
       </div>
     </div>
   </div>
@@ -110,19 +114,21 @@
     const produtoDivs = produtos.map(p => document.getElementById(p));
     let discosVisiveis = false; // Para controlar a exibição dos discos
 
-    // Função para mostrar/ocultar elementos durante carregamento
-    function toggleLoadingState(isLoading) {
-      const wizardNav = document.getElementById('wizard-nav');
-      const footerInfo = document.getElementById('footer-info');
-      
-      if (isLoading) {
-        wizardNav.style.display = 'none';
-        footerInfo.style.display = 'none';
-      } else {
-        wizardNav.style.display = 'flex';
-        footerInfo.style.display = 'block';
-      }
-    }
+// Função para mostrar/ocultar elementos durante carregamento
+function toggleLoadingState(isLoading) {
+  const wizardNav = document.getElementById('wizard-nav');
+  const footerInfo = document.getElementById('footer-info');
+  
+  if (isLoading) {
+    wizardNav.style.display = 'none';
+    footerInfo.style.display = 'none';
+  } else {
+    wizardNav.style.display = 'flex';
+    footerInfo.style.display = 'block';
+    
+  }
+}
+
 
     // Função para gerar HTML da tabela de discos otimizada
     function gerarTabelaDiscosOtimizada(discosDetalhados, discoMaisLivre) {

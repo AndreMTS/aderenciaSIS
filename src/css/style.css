@@ -23,7 +23,7 @@
     .produtos { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
     .produto { background: white; border: 2px solid #ecf0f1; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; min-width: 120px; flex: 1; }
     .produto:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-color: #e67e22; }
-    .produto.selected { border-color: #e67e22; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(230, 126, 34, 0.3); }
+    .produto.selected { border-color: #e67e22; background: linear-gradient(1deg, #ff7800 0%, #ffffff 100%); color: white; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(230, 126, 34, 0.3); }
     .produto img { width: 50px; height: 50px; margin-bottom: 10px; filter: grayscale(100%); transition: all 0.3s ease; object-fit: contain; }
     .produto.selected img { filter: grayscale(0%); transform: scale(1.1); }
     .produto h4 { font-size: 1em; margin-bottom: 3px; }

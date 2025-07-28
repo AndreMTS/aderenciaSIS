@@ -1,16 +1,30 @@
 {
   "name": "versaonova",
   "version": "1.0.0",
+  "author": {
+  "name": "Andre Matos",
+  "email": "andremts.dev@gmail.com",
+  "url": "https://andremts.vercel.app/"
+},
+  "description": "Verificador de Aderência Sisloc",
   "main": "main.js",
-  "scripts": {
-    "start": "electron ."
+  "build": {
+    "appId": "com.AndreMTSApp.aderencia",
+    "productName": "Verificador de Aderência Sisloc",
+    "icon": "icon-sisloc-requiiments-novo.ico",
+    "win": {
+      "target": "portable"
+    }
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable"
+  },
   "dependencies": {
-    "electron": "^37.2.3",
     "systeminformation": "^5.27.7"
+  },
+  "devDependencies": {
+    "electron": "^37.2.3",
+    "electron-builder": "^26.0.12"
   }
 }

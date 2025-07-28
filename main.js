@@ -89,21 +89,22 @@ function createWindow () {
     width: 820,
     height: 800,
     resizable: false, // Impede redimensionamento
+    icon: path.join(__dirname, 'icon-sisloc-requiiments-novo.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      //devTools: false, // Desativa DevTools
+      devTools: false, // Desativa DevTools
     },
   });
 
-  // // Remove o menu padrão
-  // win.setMenu(null);
+  // Remove o menu padrão
+  win.setMenu(null);
 
-  // // Bloqueia menu de contexto (botão direito)
-  // win.webContents.on('context-menu', (e) => {
-  //   e.preventDefault();
-  // });
+  // Bloqueia menu de contexto (botão direito)
+  win.webContents.on('context-menu', (e) => {
+    e.preventDefault();
+  });
 
   win.loadFile('index.html');
 }
